@@ -1,8 +1,12 @@
 Hej,
 
-mały update odnośnie interfejsu. Jak na razie udało mi się zaimplementować prosty ekran początkowy, natomiast do poniedziałku włącznie mam zamiar przygotować także ekran główny (main.storyboard), na którym w formie listy rozwijanej (Scroll View/Table View) będą wyświetlane zdekodowane posty, nad czym właśnie zaczynam pracować. Postaram się także zaimplementować mechanizm stronicowania.
+chciałbym przedstawić Wam obecny stan projektu.
 
-To tyle na ten moment, do usłyszenia we wtorek :)
+Na ten moment dekodowanie działa (Model/NetworkingManager.Swift (tylko posty) ), kwestia podpięcia interfejsu i zadanie 1 będzie gotowe.
+
+Nad interfejsem pracuję, do poniedziałku włącznie powinien być skończony. Nie wiem tylko, czy wyrobię się ze stronicowaniem, ale zrobię co w mojej mocy.
+
+PS: W międzyczasie udało mi się zaimplementować wzorzec MVP. Trochę nie po kolei, wiem, ale zważając na ilość pracy wszystko jest robione trochę na szybko (co nie znaczy, że byle jak ;) ).
 
 Pozdrawiam,
 Konrad
