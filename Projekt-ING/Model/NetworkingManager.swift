@@ -7,48 +7,13 @@
 //
 
 import Foundation
-//TODO: import Alamofire
-
-//struktury dla JSON'a  (TODO: Struktury w osobnym pliku)
-
-struct Post: Decodable {
-    let userId:Int
-    let id:Int
-    let title:String
-    let body:String
-}
-
-struct Comment: Decodable {
-    let postId:Int
-    let id:Int
-    let name:String
-    let email:String
-    let body:String
-}
-
-struct Album: Decodable {
-    let userId:Int
-    let id:Int
-    let title:String
-}
-
-struct Photo: Decodable {
-    let albumId:Int
-    let id:Int
-    let title:String
-    let url:String
-    let thumbnailUrl:String
-}
-
-struct User: Decodable {
-    //TODO: struct dla użytkownika
-}
+//import Alamofire
 
 //klasa zarządzająca połączeniem
 
 class NetworkingManager {
     
-    //TODO: klasa "statyczna" -> Singleton ?
+    //TODO: klasa "statyczna" NM -> Singleton ?
     
     private static let urlString = "https://jsonplaceholder.typicode.com"
     
@@ -112,6 +77,8 @@ class NetworkingManager {
         
         //TODO: Opcja 2 - Alamofire
         //-------------------------
+        
+        //..
     }
 }
 
