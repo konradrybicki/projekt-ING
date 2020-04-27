@@ -18,7 +18,7 @@ class NetworkingManager {
     private static let urlString = "https://jsonplaceholder.typicode.com"
     
     //TODO: metoda generyczna - możliwość dekodowania każdego typu dekodowalnych danych (jak na razie możliwe jest jedynie dekodowanie postów)
-    static func getJsonData() -> Void {
+    static func getJsonData(completionHandler: @escaping(Result<[Post], Error>) -> Void) {
         
         //Opcja 1 - klasyczny networking
         //------------------------------
@@ -31,22 +31,25 @@ class NetworkingManager {
         }
         
         //2. Ustanowienie sesji (bez konkretnego adresu - jak odpalenie przeglądarki)
-
+        
         let session = URLSession(configuration: .default)
 
         //3. Zapytanie o dane
-
-        let request = session.dataTask(with: url) { (data, response, error) in //metoda zwracająca dane, odpowiedź oraz ew błąd zapytania
+        
+        let request = session.dataTask(with: url) { (data, response, error) in //metoda zwracająca dane, odpowiedź oraz ew błąd
             
             if error != nil {
-                print(error!)
+                
+                //wysyłamy sygnał do handler'a będącego parametrem naszej metody - dzięki temu przekażemy zdekodowane dane "na zewnątrz"
+                
+                completionHandler(.failure(error!))
                 return
             }
             
             //pomijamy kwestię odpowiedzi serwera..
             
             guard let safeData = data else {
-                print("No data to collect from the server.")
+                completionHandler(.failure(error!))
                 return
             }
                     
@@ -59,20 +62,13 @@ class NetworkingManager {
             do {
                 decodedData = try decoder.decode([Post].self, from: safeData)
                 
-                print("Decoding complete.\n\nDecoded data (posts):")
-                for i in 0..<decodedData.count {
-                    print("\n\nUser ID: \(decodedData[i].userId)")
-                    print("\nPost ID: \(decodedData[i].id)")
-                    print("\nTitle: \(decodedData[i].title)")
-                    print("\nContent: \(decodedData[i].body)")
-                }
-                print("\n\nEnd.")
+                completionHandler(.success(decodedData))
             }
             catch {
-                print(error)
-                return
+                completionHandler(.failure(error))
             }
         }
+        
         request.resume()
         
         //TODO: Opcja 2 - Alamofire
@@ -81,4 +77,3 @@ class NetworkingManager {
         //..
     }
 }
-
