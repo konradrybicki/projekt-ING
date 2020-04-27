@@ -17,18 +17,34 @@ class NetworkingManager {
     
     private static let urlString = "https://jsonplaceholder.typicode.com"
     
-    //TODO: metoda generyczna - możliwość dekodowania każdego typu dekodowalnych danych (jak na razie możliwe jest jedynie dekodowanie postów)
-    static func getJsonData(completionHandler: @escaping(Result<[Post], Error>) -> Void) {
+    //metoda generyczna - możliwość dekodowania każdego typu dekodowalnych danych
+    
+    static func getJsonData<T: Decodable>(decodedType type: T.Type, completionHandler: @escaping(Result<[T], Error>) -> Void) {
         
         //Opcja 1 - klasyczny networking
         //------------------------------
         
-        //1. Adres URL
+        //1. Adres URL (fetch)
         
-        guard let url = URL(string: self.urlString + "/posts") else {
-            print("URL parsing failed.")
-            return
+        var apiCatalog:String!
+        
+        if type == Post.self {
+            apiCatalog = "/posts"
         }
+        else if type == Comment.self {
+            apiCatalog = "/comments"
+        }
+        else if type == Album.self {
+            apiCatalog = "/albums"
+        }
+        else if type == Photo.self {
+            apiCatalog = "/photos"
+        }
+        else if type == User.self {
+            apiCatalog = "/users"
+        }
+        
+        let url = URL(string: self.urlString + apiCatalog)!
         
         //2. Ustanowienie sesji (bez konkretnego adresu - jak odpalenie przeglądarki)
         
@@ -55,12 +71,12 @@ class NetworkingManager {
                     
             //4. Dekodowanie
             
-            let decodedData:[Post]
+            let decodedData:[T]
             let decoder = JSONDecoder()
             
             //do catch <=> try catch
             do {
-                decodedData = try decoder.decode([Post].self, from: safeData)
+                decodedData = try decoder.decode([T].self, from: safeData)
                 
                 completionHandler(.success(decodedData))
             }
