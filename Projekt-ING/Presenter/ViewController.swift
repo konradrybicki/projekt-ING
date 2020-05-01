@@ -29,7 +29,6 @@ class ViewController: UIViewController {
                 self.users = decodedData
             }
         }
-        
         NetworkingManager.getJsonData(decodedType: Post.self) { result in
             switch result {
             case .failure(let error):
@@ -43,11 +42,11 @@ class ViewController: UIViewController {
         //synchronizacja - dane z API muszą znaleźć się w zmiennych ZANIM wykonane zostaną metody dla tableView
         
         //Czekamy na:
-        //1. Odpowiedź ze strony API ('result') - puste tablice o określonym rozmiarze, które zaczną wypełniać się danymi
+        //1. Odpowiedź ze strony API ('result') - wstępną inicjalizację zmiennych
         print("Waiting for API response...")
         while(!((self.users?.count != nil) &&
                 (self.posts?.count != nil))) {}
-        //2. Kompletną inicjalizację zmiennych  - "wypełnienie" tablic danymi
+        //2. "Wypełnienie" tablic danymi  - pełną inicjalizację (dopiero teraz, gdy wiemy ile obiektów zostanie zdekodowanych)
         print("Waiting for variable initialisation...")
         while(!((self.users?[self.users!.count - 1] != nil) &&
                 (self.posts?[self.posts!.count - 1] != nil))) {}
@@ -61,7 +60,6 @@ class ViewController: UIViewController {
         //rejestr NIB - widok dla komórki
         
         tableView.register(UINib(nibName: "PostCell", bundle: nil), forCellReuseIdentifier: "ReusableCell")
-         
     }
 }
 
