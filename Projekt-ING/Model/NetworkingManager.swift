@@ -13,8 +13,6 @@ import Foundation
 
 class NetworkingManager {
     
-    //TODO: klasa "statyczna" NM -> Singleton ?
-    
     private static let urlString = "https://jsonplaceholder.typicode.com"
     
     //metoda generyczna - możliwość dekodowania każdego typu dekodowalnych danych
@@ -71,18 +69,29 @@ class NetworkingManager {
                     
             //4. Dekodowanie
             
+            //sp. 1 - do catch (bardziej klasyczny)
+        /*
             let decodedData:[T]
             let decoder = JSONDecoder()
             
             //do catch <=> try catch
             do {
                 decodedData = try decoder.decode([T].self, from: safeData)
-                
                 completionHandler(.success(decodedData))
             }
             catch {
                 completionHandler(.failure(error))
             }
+        */
+            //sp. 2 - guard, optional (bardziej Swift'owy ;) )
+        
+            let decoder = JSONDecoder()
+            
+            guard let decodedData = try? decoder.decode([T].self, from: safeData) else {
+                completionHandler(.failure(error!))
+                return
+            }
+            completionHandler(.success(decodedData))
         }
         
         request.resume()
