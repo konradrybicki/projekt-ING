@@ -14,6 +14,8 @@ class ViewController: UIViewController {
     
     var users:[User]?
     var posts:[Post]?
+    var networkingError_users:Error?
+    var networkingError_posts:Error?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,8 +25,7 @@ class ViewController: UIViewController {
         NetworkingManager.getJsonData(decodedType: User.self) { result in
             switch result {
             case .failure(let error):
-                print(error)
-                return
+                self.networkingError_users = error
             case .success(let decodedData):
                 self.users = decodedData
             }
@@ -32,60 +33,48 @@ class ViewController: UIViewController {
         NetworkingManager.getJsonData(decodedType: Post.self) { result in
             switch result {
             case .failure(let error):
-                print(error)
-                return
+                self.networkingError_posts = error
             case .success(let decodedData):
                 self.posts = decodedData
             }
         }
         
-        //synchronizacja - dane z API muszą znaleźć się w zmiennych ZANIM wykonane zostaną metody dla tableView
+        //synchronizacja - dane z API muszą znaleźć się w zmiennych ZANIM wykonane zostaną metody dla tableView, czekamy więc na:
         
-        //Czekamy na:
-        //1. Odpowiedź ze strony API ('result') - wstępną inicjalizację zmiennych
+        //1. Odpowiedź ze strony API ('result')
+        
         print("Waiting for API response...")
-        while(!((self.users?.count != nil) &&
-                (self.posts?.count != nil))) {}
+        
+        var errorResponse: Bool
+        var dataResponse: Bool
+        var apiResponse: Bool
+        
+        repeat {
+            errorResponse = (networkingError_users != nil) || (networkingError_posts != nil)
+            dataResponse = (self.users?.count != nil) && (self.posts?.count != nil) //wstępna inicjalizacja zmiennych
+            apiResponse = errorResponse || dataResponse
+        } while(!apiResponse)
+        
+        if errorResponse {
+            if networkingError_users != nil {
+                print(networkingError_users!)
+                return
+            }
+            if networkingError_posts != nil {
+                print(networkingError_posts!)
+                return
+            }
+        }
+        
         //2. "Wypełnienie" tablic danymi  - pełną inicjalizację (dopiero teraz, gdy wiemy ile obiektów zostanie zdekodowanych)
+        
         print("Waiting for variable initialisation...")
         while(!((self.users?[self.users!.count - 1] != nil) &&
                 (self.posts?[self.posts!.count - 1] != nil))) {}
         print("Decoding complete.")
         
-        //dane dla widoku tabelarycznego
+        //tableView.dataSource ..
         
-        tableView.dataSource = self
-        navigationItem.hidesBackButton = true
-        
-        //rejestr NIB - widok dla komórki
-        
-        tableView.register(UINib(nibName: "PostCell", bundle: nil), forCellReuseIdentifier: "ReusableCell")
+        //NIB ..
     }
 }
-
-//źródło danych dla widoku tabelarycznego (delegacja)
-
-extension ViewController: UITableViewDataSource {
-    
-    //liczba wierszy - X
-    
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.posts!.count
-    }
-    
-    //wiersze - pętla wykona się X razy
-    
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath) as! PostCell
- 
-        //charakterystyka komórki
-        
-        cell.usernameLabel.text = "username"
-        cell.bodyLabel.text = posts![indexPath.row].body
-        //commentsLabel
-        cell.commentAmountLabel.text = "X"
-        
-        return cell
-    }
-}
-
