@@ -22,7 +22,7 @@ class ViewController: UIViewController {
         
         //pobieranie danych z API do zmiennych - "puszczamy" proces, na który będziemy musieli poczekać
         
-        NetworkingManager.getJsonData(decodedType: User.self) { result in
+        NetworkingManager.getJsonData(ofType: User.self) { result in
             switch result {
             case .failure(let error):
                 self.networkingError_users = error
@@ -30,7 +30,7 @@ class ViewController: UIViewController {
                 self.users = decodedData
             }
         }
-        NetworkingManager.getJsonData(decodedType: Post.self) { result in
+        NetworkingManager.getJsonData(ofType: Post.self) { result in
             switch result {
             case .failure(let error):
                 self.networkingError_posts = error
@@ -45,9 +45,9 @@ class ViewController: UIViewController {
         
         print("Waiting for API response...")
         
-        var errorResponse: Bool
-        var dataResponse: Bool
-        var apiResponse: Bool
+        var errorResponse: Bool = false
+        var dataResponse: Bool = false
+        var apiResponse: Bool = false
         
         repeat {
             errorResponse = (networkingError_users != nil) || (networkingError_posts != nil)
@@ -73,8 +73,35 @@ class ViewController: UIViewController {
                 (self.posts?[self.posts!.count - 1] != nil))) {}
         print("Decoding complete.")
         
-        //tableView.dataSource ..
+        //inicjalizacja interfejsu
         
-        //NIB ..
+        tableView.dataSource = self
+    }
+}
+
+extension ViewController: UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        return posts!.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ReusableCell", for: indexPath) //wykorzystanie komórki wielokrotnego
+                                                                                                 //użytku do stworzenia komórki dla
+                                                                                                 //danego indeksu
+        let currentPost:Post = posts![indexPath.row]
+        var currentUser:User
+        
+        for user in users! {
+            if user.id == currentPost.userId {
+                currentUser = user
+            }
+        }
+        
+        cell.textLabel?.text = currentPost.body
+        
+        return cell
     }
 }
