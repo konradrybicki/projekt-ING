@@ -17,7 +17,7 @@ class NetworkingManager {
     
     //metoda generyczna - możliwość dekodowania każdego typu dekodowalnych danych
     
-    static func getJsonData<T: Decodable>(decodedType type: T.Type, completionHandler: @escaping(Result<[T], Error>) -> Void) {
+    static func getJsonData<T: Decodable>(ofType contentType: T.Type, completionHandler: @escaping(Result<[T], Error>) -> Void) {
         
         //Opcja 1 - klasyczny networking
         //------------------------------
@@ -26,19 +26,19 @@ class NetworkingManager {
         
         var apiCatalog:String!
         
-        if type == Post.self {
+        if contentType == Post.self {
             apiCatalog = "/posts"
         }
-        else if type == Comment.self {
+        else if contentType == Comment.self {
             apiCatalog = "/comments"
         }
-        else if type == Album.self {
+        else if contentType == Album.self {
             apiCatalog = "/albums"
         }
-        else if type == Photo.self {
+        else if contentType == Photo.self {
             apiCatalog = "/photos"
         }
-        else if type == User.self {
+        else if contentType == User.self {
             apiCatalog = "/users"
         }
         
