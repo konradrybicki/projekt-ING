@@ -14,8 +14,11 @@ class ViewController: UIViewController {
     
     var users:[User]?
     var posts:[Post]?
+    var comments:[Comment]?
+    
     var networkingError_users:Error?
     var networkingError_posts:Error?
+    var networkingError_comments:Error?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,6 +41,14 @@ class ViewController: UIViewController {
                 self.posts = decodedData
             }
         }
+        NetworkingManager.getJsonData(ofType: Comment.self) { result in
+            switch result {
+            case .failure(let error):
+                self.networkingError_posts = error
+            case .success(let decodedData):
+                self.comments = decodedData
+            }
+        }
         
         //synchronizacja - dane z API muszą znaleźć się w zmiennych ZANIM wykonane zostaną metody dla tableView, czekamy więc na:
         
@@ -50,8 +61,9 @@ class ViewController: UIViewController {
         var apiResponse: Bool = false
         
         repeat {
-            errorResponse = (networkingError_users != nil) || (networkingError_posts != nil)
-            dataResponse = (self.users?.count != nil) && (self.posts?.count != nil) //wstępna inicjalizacja zmiennych
+            errorResponse = ((networkingError_users != nil) || (networkingError_posts != nil) || (networkingError_comments != nil))
+            //wstępna inicjalizacja zmiennych:
+            dataResponse = ((self.users?.count != nil) && (self.posts?.count != nil) && (self.comments?.count != nil))
             apiResponse = errorResponse || dataResponse
         } while(!apiResponse)
         
@@ -64,18 +76,26 @@ class ViewController: UIViewController {
                 print(networkingError_posts!)
                 return
             }
+            if networkingError_comments != nil {
+                print(networkingError_comments!)
+                return
+            }
         }
         
         //2. "Wypełnienie" tablic danymi  - pełną inicjalizację (dopiero teraz, gdy wiemy ile obiektów zostanie zdekodowanych)
         
         print("Waiting for variable initialisation...")
         while(!((self.users?[self.users!.count - 1] != nil) &&
-                (self.posts?[self.posts!.count - 1] != nil))) {}
-        print("Decoding complete.")
+                (self.posts?[self.posts!.count - 1] != nil) &&
+                (self.comments?[self.comments!.count - 1] != nil))) {}
+        print("Variables initialized - decoding complete.")
         
         //inicjalizacja interfejsu
         
+        //delegacja do źródła danych
         tableView.dataSource = self
+        //rejestr pliku NIB dla komórki wielokrotnego użytku - po załadowaniu danych
+        tableView.register(UINib(nibName: "PostCell", bundle: nil), forCellReuseIdentifier: "ReusableCell")
     }
 }
 
@@ -83,25 +103,55 @@ extension ViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return posts!.count
+        //(na wszelki wypadek)
+        guard let postsUnwrapped = posts else {
+            print("Posts unwrapping failed unexpectedly.")
+            exit(1)
+        }
+        
+        return postsUnwrapped.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ReusableCell", for: indexPath) //wykorzystanie komórki wielokrotnego
-                                                                                                 //użytku do stworzenia komórki dla
-                                                                                                 //danego indeksu
-        let currentPost:Post = posts![indexPath.row]
-        var currentUser:User
+        //wykorzysujemy komórkę wielokrotnego użytku do tworzenia komórek określonej klasy
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ReusableCell", for: indexPath) as! PostCell
         
-        for user in users! {
-            if user.id == currentPost.userId {
-                currentUser = user
+        guard let postsUnwrapped = posts else {
+            print("Posts unwrapping failed unexpectedly.")
+            exit(1)
+        }
+        guard let usersUnwrapped = users else {
+            print("Users unwrapping failed unexpectedly.")
+            exit(1)
+        }
+        guard let commentsUnwrapped = comments else {
+            print("Comments unwrapping failed unexpectedly.")
+            exit(1)
+        }
+        
+        var post:Post!
+        var user:User!
+        var commentsAmount = 0
+        
+        post = postsUnwrapped[indexPath.row]
+        for currentUser in usersUnwrapped {
+            if currentUser.id == post.userId {
+                user = currentUser
+                break
+            }
+        }
+        for currentComment in commentsUnwrapped {
+            if currentComment.postId == post.id {
+                commentsAmount += 1
             }
         }
         
-        cell.textLabel?.text = currentPost.body
-        
+        cell.Username.text = user.username
+        cell.Title.text = post.title
+        cell.Body.text = post.body
+        cell.CommentAmount.text = String(commentsAmount)
+       
         return cell
     }
 }

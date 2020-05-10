@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		710FBE7B2455ED9F008F3FD0 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = 710FBE7A2455ED9F008F3FD0 /* Data.swift */; };
+		712623E9246621E500CFDB2D /* PostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 712623E7246621E500CFDB2D /* PostCell.swift */; };
+		712623EA246621E500CFDB2D /* PostCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 712623E8246621E500CFDB2D /* PostCell.xib */; };
 		719483F3244F16640017BFBB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 719483F2244F16640017BFBB /* AppDelegate.swift */; };
 		719483F5244F16640017BFBB /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 719483F4244F16640017BFBB /* SceneDelegate.swift */; };
 		719483F7244F16640017BFBB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 719483F6244F16640017BFBB /* ViewController.swift */; };
@@ -17,6 +20,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		710FBE7A2455ED9F008F3FD0 /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
+		712623E7246621E500CFDB2D /* PostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCell.swift; sourceTree = "<group>"; };
+		712623E8246621E500CFDB2D /* PostCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PostCell.xib; sourceTree = "<group>"; };
 		719483EF244F16640017BFBB /* Projekt ING.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Projekt ING.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		719483F2244F16640017BFBB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		719483F4244F16640017BFBB /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -39,6 +45,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		710FBE772455E765008F3FD0 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				719483F8244F16640017BFBB /* Main.storyboard */,
+				712623E7246621E500CFDB2D /* PostCell.swift */,
+				712623E8246621E500CFDB2D /* PostCell.xib */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		710FBE792455E789008F3FD0 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				710FBE7A2455ED9F008F3FD0 /* Data.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		712623E42465FE6000CFDB2D /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				719483F6244F16640017BFBB /* ViewController.swift */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
 		719483E6244F16640017BFBB = {
 			isa = PBXGroup;
 			children = (
@@ -60,9 +92,10 @@
 			children = (
 				719483F2244F16640017BFBB /* AppDelegate.swift */,
 				719483F4244F16640017BFBB /* SceneDelegate.swift */,
-				719483F6244F16640017BFBB /* ViewController.swift */,
 				71948406244F16BC0017BFBB /* NetworkingManager.swift */,
-				719483F8244F16640017BFBB /* Main.storyboard */,
+				710FBE792455E789008F3FD0 /* Model */,
+				710FBE772455E765008F3FD0 /* View */,
+				712623E42465FE6000CFDB2D /* Controller */,
 				719483FB244F166C0017BFBB /* Assets.xcassets */,
 				719483FD244F166C0017BFBB /* LaunchScreen.storyboard */,
 				71948400244F166C0017BFBB /* Info.plist */,
@@ -131,6 +164,7 @@
 				719483FF244F166C0017BFBB /* LaunchScreen.storyboard in Resources */,
 				719483FC244F166C0017BFBB /* Assets.xcassets in Resources */,
 				719483FA244F16640017BFBB /* Main.storyboard in Resources */,
+				712623EA246621E500CFDB2D /* PostCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,9 +176,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				719483F7244F16640017BFBB /* ViewController.swift in Sources */,
+				710FBE7B2455ED9F008F3FD0 /* Data.swift in Sources */,
 				71948407244F16BC0017BFBB /* NetworkingManager.swift in Sources */,
 				719483F3244F16640017BFBB /* AppDelegate.swift in Sources */,
 				719483F5244F16640017BFBB /* SceneDelegate.swift in Sources */,
+				712623E9246621E500CFDB2D /* PostCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
