@@ -10,7 +10,7 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    @IBOutlet weak var tableView: UITableView!
+    //zmienne - networking
     
     var users:[User]?
     var posts:[Post]?
@@ -19,6 +19,16 @@ class ViewController: UIViewController {
     var networkingError_users:Error?
     var networkingError_posts:Error?
     var networkingError_comments:Error?
+    
+    //zmienne - tableView
+    
+    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var dataLoadingIndicator: UIActivityIndicatorView!
+    
+    var displayedPostsAmount:Int?
+    var allPostsDisplayed:Bool?
+    
+    var numberOfRowsInSectionSkipper = 0 //dodatkowa zmienna dla tymczasowego zaradzenia problemowi z metodą 'numberOfRowsInSection'                                        (metoda zostaje wywołana się 3 razy a powinna raz)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -92,10 +102,16 @@ class ViewController: UIViewController {
         
         //inicjalizacja interfejsu
         
-        //delegacja do źródła danych
+        displayedPostsAmount = 0
+        allPostsDisplayed = false //po poprawnym zdekodowaniu liczba postów zawsze będzie większa od 0
+        
         tableView.dataSource = self
-        //rejestr pliku NIB dla komórki wielokrotnego użytku - po załadowaniu danych
-        tableView.register(UINib(nibName: "PostCell", bundle: nil), forCellReuseIdentifier: "ReusableCell")
+        tableView.delegate = self
+        //rejestr plików NIB dla komórek wielokrotnego użytku (jeden NIB dla jednej komórki)
+        tableView.register(UINib(nibName: "PostCell", bundle: nil), forCellReuseIdentifier: "ReusableCell_posts")
+        tableView.register(UINib(nibName: "SeparatorCell", bundle: nil), forCellReuseIdentifier: "ReusableCell_separators")
+        
+        dataLoadingIndicator.startAnimating() //problemy z synchronizacją indicatora z przeładowaniem postów - będzie się kręcić cały                                        czas
     }
 }
 
@@ -103,55 +119,125 @@ extension ViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
+        //(tymczasowe rozwiązanie problemu ze zwielokrotnionym wywołaniem metody)
+        //-----------------------------------------------------------------------
+        if numberOfRowsInSectionSkipper < 2 {
+            numberOfRowsInSectionSkipper += 1
+            return 0
+        }
+        //-----------------------------------------------------------------------
+        
         //(na wszelki wypadek)
-        guard let postsUnwrapped = posts else {
-            print("Posts unwrapping failed unexpectedly.")
+        
+        guard let _posts = posts else {
+            print("Posts unwrap failed unexpectedly.")
+            exit(1)
+        }
+        guard var _displayedPostsAmount = displayedPostsAmount else {
+            print("Variable unwrap failed unexpectedely ('displayedPostsAmount').")
             exit(1)
         }
         
-        return postsUnwrapped.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        //określamy liczbę wyświetlanych postów (max 10)
         
-        //wykorzysujemy komórkę wielokrotnego użytku do tworzenia komórek określonej klasy
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ReusableCell", for: indexPath) as! PostCell
-        
-        guard let postsUnwrapped = posts else {
-            print("Posts unwrapping failed unexpectedly.")
-            exit(1)
-        }
-        guard let usersUnwrapped = users else {
-            print("Users unwrapping failed unexpectedly.")
-            exit(1)
-        }
-        guard let commentsUnwrapped = comments else {
-            print("Comments unwrapping failed unexpectedly.")
-            exit(1)
-        }
-        
-        var post:Post!
-        var user:User!
-        var commentsAmount = 0
-        
-        post = postsUnwrapped[indexPath.row]
-        for currentUser in usersUnwrapped {
-            if currentUser.id == post.userId {
-                user = currentUser
+        for _ in _displayedPostsAmount..._posts.count {
+            _displayedPostsAmount += 1
+            
+            if _displayedPostsAmount % 10 == 0 {
                 break
             }
         }
-        for currentComment in commentsUnwrapped {
-            if currentComment.postId == post.id {
-                commentsAmount += 1
-            }
+        
+        //zmienne globalne
+        
+        self.displayedPostsAmount = _displayedPostsAmount
+        
+        if _displayedPostsAmount == _posts.count {
+            allPostsDisplayed = true
+            
+            //footer - indicator, label
+            
+            dataLoadingIndicator.hidesWhenStopped = true
+            dataLoadingIndicator.stopAnimating()
+            
+            //TODO - label z komentarzem typu 'All posts displayed'
         }
         
-        cell.Username.text = user.username
-        cell.Title.text = post.title
-        cell.Body.text = post.body
-        cell.CommentAmount.text = String(commentsAmount)
-       
-        return cell
+        //ret
+        
+        return (_displayedPostsAmount +    //posty
+                _displayedPostsAmount - 1) //separatory
+    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        if indexPath.row % 2 == 0 { //posty
+            
+            //wykorzysujemy komórkę wielokrotnego użytku do tworzenia komórek określonej klasy (jedna klasa dla jednej komórki)
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ReusableCell_posts", for: indexPath) as! PostCell
+            
+            guard let _posts = posts else {
+                print("Posts unwrap failed unexpectedly.")
+                exit(1)
+            }
+            guard let _users = users else {
+                print("Users unwrap failed unexpectedly.")
+                exit(1)
+            }
+            guard let _comments = comments else {
+                print("Comments unwrap failed unexpectedly.")
+                exit(1)
+            }
+            
+            var post:Post!
+            var user:User!
+            var commentsAmount = 0
+            
+            post = _posts[(indexPath.row)/2]
+            for currentUser in _users {
+                if currentUser.id == post.userId {
+                    user = currentUser
+                    break
+                }
+            }
+            for currentComment in _comments {
+                if currentComment.postId == post.id {
+                    commentsAmount += 1
+                }
+            }
+            
+            cell.Username.text = user.username
+            cell.Title.text = post.title
+            cell.Body.text = post.body
+            cell.CommentAmount.text = String(commentsAmount)
+            
+            return cell
+        }
+        else { //separatory
+            
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ReusableCell_separators", for: indexPath) as! SeparatorCell
+            return cell
+        }
+    }
+}
+
+//delegacja - przeniesienie funkcjonalności w zakresie reagowania na określone zdarzenia do osobnej klasy
+
+extension ViewController: UITableViewDelegate /*, UIScrollViewDelegate*/ {
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        
+        if tableView.contentOffset.y == tableView.contentSize.height - tableView.bounds.height { //sam doł naszego tableView
+            guard let _allPostsDisplayed = allPostsDisplayed else {
+                print("Variable unwrap failed unexpectedely ('allPostsDisplayed').")
+                exit(1)
+            }
+            
+            if !_allPostsDisplayed {
+                tableView.reloadData()
+            }
+        }
     }
 }
