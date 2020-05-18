@@ -1,14 +1,16 @@
 Obecny stan projektu:
 -------------------------
 
-Niedawno ukończone:
-- synchronizacja danych z API
-- implementacja interfejsu dla postów
+Niedawno ukończone (ekran postów):
+- poprawki interfejsu
+- stronicowanie (pionowo)
 
-Kolejne (ekran dla postów):
-- (opcjonalnie) poprawki kosmetyczne interfejsu
-- stronicowanie
-- Username, comments - tap gesture -> puste metody pod przejście na inny ekran
+Kolejne:
+- Synchronizacja danych z API - while -> callback
+- Unit testy dla mechanizmów networkingowych
+- Networking we ViewControllerze - refaktoryzacja
+- Username, comments - tap gesture -> metody z przejsciem na inne widoki/kontrolery
+- kolejne ekrany ..
 
 Dodatkowe informacje:
 ---------------------------
