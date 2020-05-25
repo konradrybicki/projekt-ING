@@ -1,18 +1,18 @@
 Obecny stan projektu:
 -------------------------
 
-Niedawno ukończone (ekran postów):
-- poprawki interfejsu
-- stronicowanie (pionowo)
+Niedawno ukończone:
+- stronicowanie postów (pionowo)
+- ViewController, NetworkingManager - refaktoryzacja
+- Unit testy dla klasy NetworkingManager
 
 Kolejne:
-- Synchronizacja danych z API - while -> callback
-- Unit testy dla mechanizmów networkingowych
-- Networking we ViewControllerze - refaktoryzacja
-- Username, comments - tap gesture -> metody z przejsciem na inne widoki/kontrolery
-- kolejne ekrany ..
+- Username, comments - tap gesture w komórkach tableView
+- seague - przechodzenie na inne ekrany
+- widok komentarzy pod postem
+- widok profilu użytkownika
 
 Dodatkowe informacje:
 ---------------------------
 
-Odnośnie notatek w moim kodzie, są one bardziej dla mnie niż dla Was/Panów, stąd tak szczegółowy opis :)
+Odnośnie notatek w moim kodzie, są one bardziej dla mnie niż dla Was/Panów, stąd momentami tak szczegółowy opis :)
