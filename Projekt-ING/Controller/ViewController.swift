@@ -16,9 +16,9 @@ class ViewController: UIViewController {
     var posts:[Post]?
     var comments:[Comment]?
     
-    var networkingError_users:Error?
-    var networkingError_posts:Error?
-    var networkingError_comments:Error?
+    var error_users:Error?
+    var error_posts:Error?
+    var error_comments:Error?
     
     //zmienne - tableView
     
@@ -28,90 +28,36 @@ class ViewController: UIViewController {
     var displayedPostsAmount:Int?
     var allPostsDisplayed:Bool?
     
-    var numberOfRowsInSectionSkipper = 0 //dodatkowa zmienna dla tymczasowego zaradzenia problemowi z metodą 'numberOfRowsInSection'                                        (metoda zostaje wywołana się 3 razy a powinna raz)
+    var numberOfRowsInSectionSkipper = 0 //dodatkowa zmienna dla tymczasowego zaradzenia problemowi z metodą 'numberOfRowsInSection'                                        (metoda zostaje wywołana 3 razy a powinna raz)
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //pobieranie danych z API do zmiennych - "puszczamy" proces, na który będziemy musieli poczekać
+        //dane z API
         
-        NetworkingManager.getJsonData(ofType: User.self) { result in
-            switch result {
-            case .failure(let error):
-                self.networkingError_users = error
-            case .success(let decodedData):
-                self.users = decodedData
-            }
-        }
-        NetworkingManager.getJsonData(ofType: Post.self) { result in
-            switch result {
-            case .failure(let error):
-                self.networkingError_posts = error
-            case .success(let decodedData):
-                self.posts = decodedData
-            }
-        }
-        NetworkingManager.getJsonData(ofType: Comment.self) { result in
-            switch result {
-            case .failure(let error):
-                self.networkingError_posts = error
-            case .success(let decodedData):
-                self.comments = decodedData
-            }
-        }
+        NetworkingManager.handleJsonGetting(requestedType1: User.self, requestedType2: Post.self, requestedType3: Comment.self,
+                                            dataContainer1: &users, dataContainer2: &posts, dataContainer3: &comments,
+                                            errorContainer1: &error_users, errorContainer2: &error_posts, errorContainer3: &error_comments)
         
-        //synchronizacja - dane z API muszą znaleźć się w zmiennych ZANIM wykonane zostaną metody dla tableView, czekamy więc na:
+        //obsługa błędów - zaimplementowana właśnie we VC, ze względu na ew. konieczność wypisania błędów,
+        //czy też odpowiednich komunikatów na ekran
         
-        //1. Odpowiedź ze strony API ('result')
+        if (error_posts != nil) { print(error_posts!); exit(1) }
+        if (error_comments != nil) { print(error_comments!); exit(1) }
+        if (error_users != nil) { print(error_users!); exit(1) }
         
-        print("Waiting for API response...")
-        
-        var errorResponse: Bool = false
-        var dataResponse: Bool = false
-        var apiResponse: Bool = false
-        
-        repeat {
-            errorResponse = ((networkingError_users != nil) || (networkingError_posts != nil) || (networkingError_comments != nil))
-            //wstępna inicjalizacja zmiennych:
-            dataResponse = ((self.users?.count != nil) && (self.posts?.count != nil) && (self.comments?.count != nil))
-            apiResponse = errorResponse || dataResponse
-        } while(!apiResponse)
-        
-        if errorResponse {
-            if networkingError_users != nil {
-                print(networkingError_users!)
-                return
-            }
-            if networkingError_posts != nil {
-                print(networkingError_posts!)
-                return
-            }
-            if networkingError_comments != nil {
-                print(networkingError_comments!)
-                return
-            }
-        }
-        
-        //2. "Wypełnienie" tablic danymi  - pełną inicjalizację (dopiero teraz, gdy wiemy ile obiektów zostanie zdekodowanych)
-        
-        print("Waiting for variable initialisation...")
-        while(!((self.users?[self.users!.count - 1] != nil) &&
-                (self.posts?[self.posts!.count - 1] != nil) &&
-                (self.comments?[self.comments!.count - 1] != nil))) {}
-        print("Variables initialized - decoding complete.")
-        
-        //inicjalizacja interfejsu
+        //interfejs
         
         displayedPostsAmount = 0
         allPostsDisplayed = false //po poprawnym zdekodowaniu liczba postów zawsze będzie większa od 0
         
         tableView.dataSource = self
         tableView.delegate = self
-        //rejestr plików NIB dla komórek wielokrotnego użytku (jeden NIB dla jednej komórki)
+ 
         tableView.register(UINib(nibName: "PostCell", bundle: nil), forCellReuseIdentifier: "ReusableCell_posts")
         tableView.register(UINib(nibName: "SeparatorCell", bundle: nil), forCellReuseIdentifier: "ReusableCell_separators")
         
-        dataLoadingIndicator.startAnimating() //problemy z synchronizacją indicatora z przeładowaniem postów - będzie się kręcić cały                                        czas
+        dataLoadingIndicator.startAnimating() //problemy z synchronizacją indicatora z przeładowaniem postów - będzie się kręcić cały czas
     }
 }
 
@@ -229,7 +175,7 @@ extension ViewController: UITableViewDelegate /*, UIScrollViewDelegate*/ {
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         
-        if tableView.contentOffset.y == tableView.contentSize.height - tableView.bounds.height { //sam doł naszego tableView
+        if tableView.contentOffset.y == tableView.contentSize.height - tableView.bounds.height { //sam dół naszego tableView
             guard let _allPostsDisplayed = allPostsDisplayed else {
                 print("Variable unwrap failed unexpectedely ('allPostsDisplayed').")
                 exit(1)
