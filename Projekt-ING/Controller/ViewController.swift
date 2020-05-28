@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class PostsViewController: UIViewController {
     
     //zmienne - networking
     
@@ -59,9 +59,17 @@ class ViewController: UIViewController {
         
         dataLoadingIndicator.startAnimating() //problemy z synchronizacją indicatora z przeładowaniem postów - będzie się kręcić cały czas
     }
+    
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // Get the new view controller using segue.destination.
+        // Pass the selected object to the new view controller.
+    }
+    
+    @IBAction func unwindToPosts(_ segue: UIStoryboardSegue) {}
 }
 
-extension ViewController: UITableViewDataSource {
+extension PostsViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
@@ -154,7 +162,7 @@ extension ViewController: UITableViewDataSource {
                 }
             }
             
-            cell.Username.text = user.username
+            cell.Username.setTitle(user.username, for: .normal)
             cell.Title.text = post.title
             cell.Body.text = post.body
             cell.CommentAmount.text = String(commentsAmount)
@@ -171,7 +179,7 @@ extension ViewController: UITableViewDataSource {
 
 //delegacja - przeniesienie funkcjonalności w zakresie reagowania na określone zdarzenia do osobnej klasy
 
-extension ViewController: UITableViewDelegate /*, UIScrollViewDelegate*/ {
+extension PostsViewController: UITableViewDelegate /*, UIScrollViewDelegate*/ {
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         
