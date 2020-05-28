@@ -2,15 +2,14 @@ Obecny stan projektu:
 -------------------------
 
 Niedawno ukończone:
-- stronicowanie postów (pionowo)
 - ViewController, NetworkingManager - refaktoryzacja
 - Unit testy dla klasy NetworkingManager
+- widok komentarzy
 
 Kolejne:
-- Username, comments - tap gesture w komórkach tableView
-- seague - przechodzenie na inne ekrany
-- widok komentarzy pod postem
 - widok profilu użytkownika
+- widok zdjęć
+- widok geo
 
 Dodatkowe informacje:
 ---------------------------
