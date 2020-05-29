@@ -5,7 +5,6 @@
 //  Created by Konrad Rybicki on 26/05/2020.
 //  Copyright © 2020 Konrad Rybicki. All rights reserved.
 //
-
 import UIKit
 
 class CommentsViewController: UIViewController {
@@ -134,6 +133,7 @@ extension CommentsViewController: UITableViewDataSource {
             cell.Body.text = _ourPost.body
             cell.CommentAmount.text = String(ourCommentAmount)
             
+            cell.Username.isUserInteractionEnabled = false
             cell.Comments.isUserInteractionEnabled = false
             
             return cell
