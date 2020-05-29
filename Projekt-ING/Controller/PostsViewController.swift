@@ -30,14 +30,10 @@ class PostsViewController: UIViewController, PostCellDelegate {
     
     var numberOfRowsInSectionSkipper = 0 //dodatkowa zmienna dla tymczasowego zaradzenia problemowi z metodą 'numberOfRowsInSection'                                        (metoda zostaje wywołana 3 razy a powinna raz)
     
-    //przekaz danych do innych kontrolerów
+    //przekaz danych do innych kontrolerów (tylko id - networking od 0 (coś w API mogło w czasie "przechodzenia" ulec zmianie))
     
-    var postIdPassedBySegue:Int! //przekazujemy tylko id posta - podczas przechodzenia na inny kontroler, coś w API
-                                 //(treść samego posta, komentarze) mogło ulec zmianie, dane trzeba będzie więc
-                                 //ponownie zdekodować, a następnie znaleźć naszego posta po id
-                                 //(zakładamy, że samo id nie ulegnie zmianie)
-
-    //..
+    var userIdPassedBySegue:Int!
+    var postIdPassedBySegue:Int!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -69,25 +65,28 @@ class PostsViewController: UIViewController, PostCellDelegate {
         dataLoadingIndicator.startAnimating() //problemy z synchronizacją indicatora z przeładowaniem postów - będzie się kręcić cały czas
     }
     
-    //przejścia pomiędzy widokami
+    //przejścia pomiędzy widokami (PostCellDelegate)
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
-        if let destinationController = segue.destination as? CommentsViewController {
+        if let destinationController = segue.destination as? ProfileViewController {
+            destinationController.passedUserId = self.userIdPassedBySegue
+        }
+        else if let destinationController = segue.destination as? CommentsViewController {
             destinationController.passedPostId = self.postIdPassedBySegue
         }
-        //else if inny kontroler
     }
     
-    //(PostCellDelegate)
+    func callSegueFromCell(matchingUserWith id: Int) {
+        self.userIdPassedBySegue = id
+        performSegue(withIdentifier: "presentProfile", sender: self)
+    }
     func callSegueFromCell(matchingPostWith id: Int) {
-        
         self.postIdPassedBySegue = id
-        performSegue(withIdentifier: "presentComments", sender: self) //wykonanie metody poprzedzone wykonaniem prepare(),
-                                                                      //stąd wcześniejsze przekazanie id posta do zmiennej
-                                                                      //"globalnej", dla tejże właśnie metody
+        performSegue(withIdentifier: "presentComments", sender: self)
     }
     
+    @IBAction func unwindProfile(_ unwindSegue: UIStoryboardSegue) {}
     @IBAction func unwindComments(_ unwindSegue: UIStoryboardSegue) {}
 }
 
@@ -147,6 +146,8 @@ extension PostsViewController: UITableViewDataSource {
         
         if indexPath.row % 2 == 0 { //posty
             
+            //dane
+            
             guard let _posts = posts else {
                 print("Posts unwrap failed unexpectedly.")
                 exit(1)
@@ -181,6 +182,8 @@ extension PostsViewController: UITableViewDataSource {
                 }
             }
             
+            //komórka
+            
             //wykorzysujemy komórkę wielokrotnego użytku do tworzenia komórek określonej klasy (jedna klasa dla jednej komórki)
             let cell = tableView.dequeueReusableCell(withIdentifier: "ReusableCell_posts", for: indexPath) as! PostCell
             
@@ -188,9 +191,18 @@ extension PostsViewController: UITableViewDataSource {
             cell.Title.text = post.title
             cell.Body.text = post.body
             cell.CommentAmount.text = String(commentsAmount)
+        
+            //przekaz danych (delegacja)
             
-            cell.delegate = self
-            cell.postId = post.id //przekaz danych do kontrolera widoku komentarzy
+            if commentsAmount == 0 {
+                cell.Username.isUserInteractionEnabled = false
+                cell.Comments.isUserInteractionEnabled = false
+            }
+            else {
+                cell.delegate = self
+                cell.userId = user.id
+                cell.postId = post.id //przekaz danych do kontrolera widoku komentarzy
+            }
             
             return cell
         }

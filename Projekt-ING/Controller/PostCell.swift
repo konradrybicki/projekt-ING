@@ -23,6 +23,7 @@ class PostCell: UITableViewCell {
     //delegacja, przekaz danych do innych kontrolerów
     
     var delegate:PostCellDelegate!
+    var userId:Int!
     var postId:Int!
     
     override func awakeFromNib() { //(nib - stara nazwa dla xib)
@@ -34,18 +35,15 @@ class PostCell: UITableViewCell {
     
     @IBAction func usernameTapped(_ sender: UIButton) {
         print("Username tapped")
-        
-        //..
+        self.delegate.callSegueFromCell(matchingUserWith: self.userId)
     }
     @IBAction func commentsTapped(_ sender: UIButton) {
         print("Comments tapped")
-        
-        //mechanizm wykorzystujący delegację - wywoływanie metody poprzez obiekt kl. PostV.C. z poziomu kl. PostCell nie działało
-    
         self.delegate.callSegueFromCell(matchingPostWith: self.postId)
     }
 }
 
 protocol PostCellDelegate {
+    func callSegueFromCell(matchingUserWith id: Int)
     func callSegueFromCell(matchingPostWith id: Int)
 }
