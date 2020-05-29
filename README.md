@@ -5,11 +5,7 @@ Niedawno ukończone:
 - ViewController, NetworkingManager - refaktoryzacja
 - Unit testy dla klasy NetworkingManager
 - widok komentarzy
-
-Kolejne:
 - widok profilu użytkownika
-- widok zdjęć
-- widok geo
 
 Dodatkowe informacje:
 ---------------------------
